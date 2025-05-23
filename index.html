@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>NOVA Smart Home</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet/dist/leaflet.css"
+        />
+        <style>
+            :root {
+                --main_hover_blue_color: rgb(26, 144, 255);
+                --transparent_blue_color: rgba(0, 132, 255, 0.286);
+                --transparent_new_blue_color: rgba(3, 74, 141, 0.286);
+                --gadget_background_color: rgba(0, 132, 255, 0.023);
+                --border_thickness: 5px;
+                --border_color: rgb(0, 132, 255);
+                --no_signal_error_red: rgba(200, 30, 30, 0.529);
+                --text_color: rgb(255, 255, 255);
+                --good_green: rgba(0, 255, 60, 0.401);
+                --box_shadow: var(--box_shadow);
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                margin: 0;
+                padding-top: 50px;
+                font-family: Poppins, sans-serif;
+                margin: 0;
+                height: 500vh;
+                color: var(--text_color);
+                background-color: white;
+            }
+
+            .pages {
+                scroll-snap-align: start;
+            }
+
+            /*.main *{
+                transition: all 1s;
+            }
+            */
+
+            @media (max-width: 1200px) {
+                .main {
+                    flex-direction: column;
+                    align-items: center;
+                    width: 100%;
+                }
+
+                .left {
+                    margin: 0px;
+                    width: 90%;
+                    font-family: Poppins, sans-serif;
+                    color: var(--text_color);
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                }
+
+                .right {
+                    margin: 0px;
+                    width: 90%;
+                    font-family: Poppins, sans-serif;
+                    color: var(--text_color);
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .top {
+                    flex-direction: column;
+                    height: auto;
+                }
+
+                .thaq_gadget {
+                    margin-bottom: 10px;
+                }
+
+                .controls {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .control {
+                    width: 80%;
+                }
+
+                .real_weather div {
+                    width: 100%;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .real_weather {
+                    margin-bottom: 20px;
+                }
+
+                .map {
+                    margin-bottom: 20px;
+                }
+
+                .air_quality {
+                    width: 250px;
+                    height: 250px;
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                    border-radius: 100%;
+                    background: var(--good_green);
+                    transition-duration: 1s;
+                    flex-direction: column;
+                    padding: 20px;
+                }
+
+                .air_quality h1,
+                .air_quality h5,
+                .air_quality h3 {
+                    font-size: 15px;
+                    margin: 0px;
+                }
+            }
+
+            .main {
+                display: flex;
+                justify-content: space-around;
+            }
+
+            @media (min-width: 1200px) {
+                .left {
+                    margin: 0px;
+                    width: 45%;
+                    font-family: Poppins, sans-serif;
+                    color: var(--text_color);
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                }
+
+                .right {
+                    margin: 0px;
+                    width: 45%;
+                    font-family: Poppins, sans-serif;
+                    color: var(--text_color);
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .real_weather div {
+                    width: 50%;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: left;
+                    margin-left: 20px;
+                }
+
+                .air_quality {
+                    width: 400px;
+                    height: 400px;
+                }
+            }
+
+            .top {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+            }
+
+            .thaq_gadget {
+                width: 150px;
+                height: 150px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                border-radius: 10px;
+                background: var(--transparent_blue_color);
+                transition-duration: 1s;
+                border: var(--border_thickness) solid var(--border_color);
+            }
+
+            .thaq_gadget:hover {
+                background: var(--main_hover_blue_color);
+                margin-top: -5px;
+                margin-left: -5px;
+                box-shadow: 10px 10px 0px var(--box_shadow);
+                transition-duration: 0.25s;
+            }
+
+            .real_weather {
+                width: 100%;
+                min-height: 150px;
+                display: flex;
+                justify-content: left;
+                align-items: center;
+                border-radius: 10px;
+                background: var(--transparent_new_blue_color);
+                transition-duration: 1s;
+                flex-wrap: wrap;
+                border: var(--border_thickness) solid var(--border_color);
+            }
+
+            .real_weather:hover {
+                background: var(--main_hover_blue_color);
+                margin-top: -5px;
+                margin-left: -5px;
+                box-shadow: 10px 10px 0px var(--box_shadow);
+                transition-duration: 0.25s;
+            }
+
+            .real_weather img {
+                width: 100px;
+                height: 100px;
+                margin: 25px;
+            }
+
+            .real_weather div div {
+                width: 50%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: left;
+            }
+
+            .map {
+                width: 95%;
+                height: 400px;
+                display: flex;
+                justify-content: space-around;
+                align-items: left;
+                border-radius: 10px;
+                background: var(--border_color);
+                transition-duration: 1s;
+                flex-direction: column;
+            }
+
+            .map:hover {
+                margin-top: -15px;
+                margin-left: -5px;
+                box-shadow: 10px 10px 0px var(--box_shadow);
+                transition-duration: 0.25s;
+            }
+
+            .map #your_map {
+                width: 100%;
+                height: 350px;
+                border-radius: 10px;
+            }
+
+            .house_condition {
+                text-align: center;
+                width: 100%;
+                min-height: 300px;
+                display: flex;
+                justify-content: space-around;
+                flex-direction: column;
+                border-radius: 10px;
+                background: var(--gadget_background_color);
+                transition-duration: 1s;
+                border: var(--border_thickness) solid var(--border_color);
+                flex-wrap: wrap;
+                margin: 0px 0px 20px 0px;
+            }
+
+            .BacNinh_condition {
+                text-align: center;
+                align-items: center;
+                width: 100%;
+                min-height: 800px;
+                display: flex;
+                justify-content: space-around;
+                flex-direction: column;
+                flex-wrap: wrap;
+                border-radius: 10px;
+                background: var(--gadget_background_color);
+                transition-duration: 1s;
+                border: var(--border_thickness) solid var(--border_color);
+            }
+
+            .air_rating {
+                text-align: center;
+                width: 100%;
+                height: 500px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                align-items: center;
+                border-radius: 10px;
+                background: var(--transparent_new_blue_color);
+                border: var(--border_thickness) solid var(--border_color);
+                transition-duration: 1s;
+                margin-bottom: 20px;
+            }
+
+            .info {
+                text-align: center;
+                width: 100%;
+                min-height: 150px;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                border-radius: 10px;
+                background: var(--transparent_new_blue_color);
+                border: var(--border_thickness) solid var(--border_color);
+                transition-duration: 1s;
+                flex-direction: row;
+                margin-bottom: 20px;
+            }
+
+            .info:hover {
+                background: var(--main_hover_blue_color);
+                margin-top: -5px;
+                margin-left: -5px;
+                box-shadow: 10px 10px 0px var(--box_shadow);
+                transition-duration: 0.25s;
+            }
+
+            .time {
+                display: flex;
+                width: 45%;
+                flex-direction: column;
+            }
+
+            .info img {
+                height: 75px;
+            }
+
+            .air_quality {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                border-radius: 100%;
+                background: var(--good_green);
+                transition-duration: 1s;
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .air_quality h1 {
+                font-size: 70px;
+                margin: 0px;
+            }
+
+            .aq {
+                display: flex;
+                justify-content: space-around;
+                flex-direction: row;
+            }
+
+            .aq div {
+                margin: 20px;
+            }
+
+            .control_panel {
+                text-align: center;
+                width: 100%;
+                display: flex;
+                justify-content: space-around;
+                flex-direction: column;
+                align-items: center;
+                border-radius: 10px;
+                background: var(--transparent_new_blue_color);
+                border: var(--border_thickness) solid var(--border_color);
+                transition-duration: 1s;
+                min-height: 500px;
+            }
+
+            .controls {
+                width: 100%;
+                margin-top: 20px;
+                display: flex;
+                justify-content: space-around;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .control {
+                width: 150px;
+                height: 150px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                border-radius: 10px;
+                background: var(--transparent_blue_color);
+                transition-duration: 1s;
+                flex-wrap: wrap;
+                border: var(--border_thickness) solid var(--border_color);
+                margin: 10px;
+            }
+
+            .control:hover {
+                background: var(--main_hover_blue_color);
+                box-shadow: 10px 10px 0px var(--box_shadow);
+                transition-duration: 0.25s;
+            }
+
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 60px;
+                height: 34px;
+            }
+
+            /* Hide default HTML checkbox */
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            /* The slider */
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                -webkit-transition: 0.4s;
+                transition: 0.4s;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: var(--text_color);
+                -webkit-transition: 0.4s;
+                transition: 0.4s;
+            }
+
+            input:checked + .slider {
+                background-color: #5cd641;
+            }
+
+            input:focus + .slider {
+                box-shadow: 0 0 1px #2196f3;
+            }
+
+            input:checked + .slider:before {
+                -webkit-transform: translateX(26px);
+                -ms-transform: translateX(26px);
+                transform: translateX(26px);
+            }
+
+            /* Rounded sliders */
+            .slider.round {
+                border-radius: 34px;
+            }
+
+            .slider.round:before {
+                border-radius: 50%;
+            }
+
+            .page_2,
+            .page_3 {
+                margin-top: 200px;
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                width: 100%;
+                height: 100vh;
+            }
+
+            .page_2 h1,
+            .page_3 h1 {
+                padding: 20px;
+            }
+
+            .chart-container {
+                display: flex;
+                background: var(--transparent_new_blue_color);
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                width: 95%;
+                padding: 10px;
+                border: var(--border_thickness) solid var(--border_color);
+                border-radius: 10px;
+            }
+
+            .chart-box {
+                width: 50%;
+                min-width: 600px;
+                height: 400px;
+            }
+
+            .chart-box svg {
+                height: 100%;
+            }
+
+            .background_blur {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 600vh;
+                background-image: url("./background2.jpg");
+                background-repeat: repeat-y;
+                background-position: center top;
+                background-size: 100%;
+                filter: blur(3px);
+
+                z-index: -1;
+            }
+        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+        />
+
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        />
+    </head>
+    <body>
+        <div id="page1" style="position: absolute; top:-10px"></div>
+        <div class="background_blur"></div>
+        <div class="main pages">
+            <div class="left">
+                <div class="house_condition">
+                    <h2>House condition</h2>
+                    <div class="top">
+                        <a
+                            href="#page2"
+                            style="
+                                color: var(--text_color);
+                                text-decoration: none;
+                            "
+                        >
+                            <div class="thaq_gadget temp_sensor_1">
+                                <p class="title">
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-size: 30px;
+                                            position: relative;
+                                            bottom: -8px;
+                                        "
+                                    >
+                                        thermostat </span
+                                    >Temperature
+                                </p>
+                                <h1 id="temp_sensor_1">---°C</h1>
+                            </div>
+                        </a>
+                        <a
+                            href="#page2"
+                            style="
+                                color: var(--text_color);
+                                text-decoration: none;
+                            "
+                        >
+                            <div class="thaq_gadget humid_sensor_1">
+                                <p class="title">
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-size: 30px;
+                                            position: relative;
+                                            bottom: -8px;
+                                        "
+                                    >
+                                        humidity_percentage </span
+                                    >Humidity
+                                </p>
+                                <h1 id="humid_sensor_1">---%</h1>
+                            </div>
+                        </a>
+                        <a
+                            href="#page3"
+                            style="
+                                color: var(--text_color);
+                                text-decoration: none;
+                            "
+                        >
+                            <div class="thaq_gadget airq_sensor_1">
+                                <p class="title">
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-size: 30px;
+                                            position: relative;
+                                            bottom: -8px;
+                                        "
+                                    >
+                                        detector_co </span
+                                    >Air Quality
+                                </p>
+                                <h1 id="airq_sensor_1">---ppm</h1>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="BacNinh_condition">
+                    <h2>Bac Ninh condition</h2>
+                    <a
+                        href="https://google.com/search?q=bac ninh weather"
+                        target="_blank"
+                        style="
+                            color: var(--text_color);
+                            text-decoration: none;
+                            width: 95%;
+                        "
+                    >
+                        <div class="real_weather">
+                            <img src="#" alt="" id="condition_icon" />
+                            <div>
+                                <div>
+                                    <h1 id="temp">---°C</h1>
+                                    <h1 id="humid">---%</h1>
+                                </div>
+                                <div>
+                                    <h3 id="condition">---</h3>
+                                    <h4 id="location">---</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="map">
+                        <a
+                            href="https://maps.google.com/maps?ll=21.191977,106.074229&z=18&t=h&hl=en&gl=US&mapclient=embed&q=21%C2%B011%2731.3%22N%20106%C2%B004%2729.3%22E%2021.192028%2C%20106.074806@21.1920278,106.0748056"
+                            style="
+                                color: var(--text_color);
+                                text-decoration: none;
+                            "
+                        >
+                            <h3>Your current position</h3></a
+                        >
+                        <!-- <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d1729.2204111624956!2d106.07401203938154!3d21.192016998173795!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMjHCsDExJzMxLjMiTiAxMDbCsDA0JzI5LjMiRQ!5e1!3m2!1sen!2sus!4v1747200455001!5m2!1sen!2sus"
+                                width="100%"
+                                height="350px"
+                                style="border: 0"
+                                allowfullscreen
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                            ></iframe> -->
+                        <div id="your_map"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="right">
+                <div class="info">
+                    <div class="time">
+                        <h1 id="time">11:22</h1>
+                        <h3 id="date">5/13/2025</h3>
+                    </div>
+                    <div class="esp_info">
+                        <img src="./esp32_icon.png" alt="" />
+                        <h3>ESP32 WROOM 32</h3>
+                    </div>
+                </div>
+                <div class="air_rating">
+                    <h2>Air Quality</h2>
+                    <div class="air_quality">
+                        <h1>Good</h1>
+                        <div class="aq">
+                            <div class="air_quality_1">
+                                <h5>PM2.5</h5>
+                                <h3 id="pm25">---µg/m³</h3>
+                            </div>
+                            <div class="air_quality_2">
+                                <h5>PM10</h5>
+                                <h3 id="pm10">---µg/m³</h3>
+                            </div>
+                            <div class="air_quality_3">
+                                <h5>CO</h5>
+                                <h3 id="co">---ppm</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control_panel">
+                    <h2>Control Panel</h2>
+                    <div class="controls">
+                        <div class="control" id="light_1_control">
+                            <p class="title">Light 1</p>
+                            <label class="switch">
+                                <input type="checkbox" />
+                                <span
+                                    class="slider round"
+                                    onclick="activate('light1')"
+                                ></span>
+                            </label>
+                        </div>
+                        <div class="control" id="light_2_control">
+                            <p class="title">Light 2</p>
+                            <label class="switch">
+                                <input type="checkbox" />
+                                <span
+                                    class="slider round"
+                                    onclick="activate('light2')"
+                                ></span>
+                            </label>
+                        </div>
+                        <div class="control" id="camera_1_control">
+                            <p class="title">Camera 1</p>
+                            <label class="switch">
+                                <input type="checkbox" checked />
+                                <span
+                                    class="slider round"
+                                    onclick="activate('camera1')"
+                                ></span>
+                            </label>
+                        </div>
+                        <div
+                            class="control"
+                            id="camera_2_control"
+                            style="
+                                background: rgba(54, 54, 54, 0.712);
+                                z-index: 2;
+                            "
+                        >
+                            <p class="title">
+                                Camera 2 <br />
+                                Unavailable
+                            </p>
+                            <div onclick="">
+                                <label class="switch" style="z-index: -1">
+                                    <input
+                                        type="checkbox"
+                                        style="z-index: -1"
+                                    />
+                                    <span
+                                        class="slider round"
+                                        style="z-index: -1"
+                                    ></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="control" id="dht11_control">
+                            <p class="title">DHT sensor</p>
+                            <label class="switch">
+                                <input type="checkbox" checked />
+                                <span
+                                    class="slider round"
+                                    onclick="activate('DHT11')"
+                                ></span>
+                            </label>
+                        </div>
+                        <div class="control">
+                            <p class="title">...</p>
+                            <form action=""></form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page_2 pages">
+            <h1 id="page2">Temperature and humidity</h1>
+            <div class="chart-container">
+                <div id="temp_chart" class="chart-box"></div>
+                <div id="humidity_chart" class="chart-box"></div>
+            </div>
+        </div>
+        <div class="page_3 pages">
+            <h1 id="page3">Air quality</h1>
+            <div class="chart-container">
+                <div id="aq_chart" class="chart-box"></div>
+            </div>
+        </div>
+        <a
+            href="#page1"
+            style="
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                text-decoration: none;
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 25px;
+                background: var(--border_color);
+            "
+            ><span class="material-symbols-outlined"
+                    style="position:relative; top:5px;left:7px;font-size: 40px;"> arrow_upward </span></a
+        >
+    </body>
+    <script
+        type="text/javascript"
+        src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script type="text/javascript">
+        google.charts.load("current", { packages: ["corechart"] });
+        google.charts.setOnLoadCallback(drawCharts);
+
+        const jsonData = `[
+        {"hour": 1, "temp": 15, "humidity": 90, "aq": 103},
+        {"hour": 2, "temp": 14, "humidity": 91, "aq": 100},
+        {"hour": 3, "temp": 13, "humidity": 92, "aq": 200},
+        {"hour": 4, "temp": 13, "humidity": 91, "aq": 302},
+        {"hour": 5, "temp": 12, "humidity": 90, "aq": 100},
+        {"hour": 6, "temp": 13, "humidity": 88, "aq": 500},
+        {"hour": 7, "temp": 14, "humidity": 85, "aq": 100},
+        {"hour": 8, "temp": 16, "humidity": 80, "aq": 300},
+        {"hour": 9, "temp": 18, "humidity": 75, "aq": 190},
+        {"hour": 10, "temp": 20, "humidity": 70, "aq": 140},
+        {"hour": 11, "temp": 21, "humidity": 68, "aq": 100},
+        {"hour": 12, "temp": 22, "humidity": 65, "aq": 100},
+        {"hour": 13, "temp": 23, "humidity": 63, "aq": 100},
+        {"hour": 14, "temp": 24, "humidity": 60, "aq": 120},
+        {"hour": 15, "temp": 25, "humidity": 58, "aq": 190},
+        {"hour": 16, "temp": 25, "humidity": 57, "aq": 300},
+        {"hour": 17, "temp": 24, "humidity": 59, "aq": 500},
+        {"hour": 18, "temp": 23, "humidity": 61, "aq": 600},
+        {"hour": 19, "temp": 22, "humidity": 65, "aq": 700},
+        {"hour": 20, "temp": 20, "humidity": 70, "aq": 100},
+        {"hour": 21, "temp": 18, "humidity": 75, "aq": 1000},
+        {"hour": 22, "temp": 17, "humidity": 80, "aq": 100},
+        {"hour": 23, "temp": 16, "humidity": 85, "aq": 100},
+        {"hour": 24, "temp": 15, "humidity": 88, "aq": 100}
+        ]`;
+
+        function drawCharts() {
+            const raw = JSON.parse(jsonData);
+
+            const tempData = [["Hour", "Temperature"]];
+            const humidityData = [["Hour", "Humidity"]];
+            const air_qualityData = [["Hour", "Quality"]];
+            raw.forEach((entry) => {
+                const label = `${entry.hour}`;
+                tempData.push([label, entry.temp]);
+                humidityData.push([label, entry.humidity]);
+                air_qualityData.push([label, entry.aq]);
+            });
+
+            const tempOptions = {
+                title: "Temperature Over 24 Hours",
+                legendTextStyle: { color: "#f0f0f0" },
+                titleTextStyle: { color: "#f0f0f0" },
+                hAxis: {
+                    title: "Hour",
+                    gridlines: { count: 24, color: "#f0f0f0" },
+                    textStyle: { color: "#f0f0f0" },
+                    titleTextStyle: { color: "#f0f0f0" },
+                },
+                vAxis: {
+                    title: "Temperature (°C)",
+                    gridlines: { color: "#f0f0f0" },
+                    textStyle: { color: "#f0f0f0" },
+                    titleTextStyle: { color: "#f0f0f0" },
+                },
+                legend: "none",
+                colors: ["#4285F4"],
+                areaOpacity: 0.3,
+                chartArea: { width: "85%", height: "70%" },
+                backgroundColor: { fill: "none" },
+            };
+
+            const humidityOptions = {
+                title: "Humidity Over 24 Hours",
+                legendTextStyle: { color: "#f0f0f0" },
+                titleTextStyle: { color: "#f0f0f0" },
+                hAxis: {
+                    title: "Hour",
+                    gridlines: { count: 24, color: "#f0f0f0" },
+                    textStyle: { color: "#f0f0f0" },
+                    titleTextStyle: { color: "#f0f0f0" },
+                },
+                vAxis: {
+                    title: "Humidity (%)",
+                    gridlines: { color: "#f0f0f0" },
+                    textStyle: { color: "#f0f0f0" },
+                    titleTextStyle: { color: "#f0f0f0" },
+                },
+                legend: "none",
+                colors: ["#34A853"],
+                areaOpacity: 0.3,
+                chartArea: { width: "85%", height: "70%" },
+                backgroundColor: { fill: "none" },
+            };
+
+            const air_qualityOption = {
+                title: "Air qualtity Over 24 Hours",
+                legendTextStyle: { color: "#f0f0f0" },
+                titleTextStyle: { color: "#f0f0f0" },
+                hAxis: {
+                    title: "Hour",
+                    gridlines: { count: 24, color: "#f0f0f0" },
+                    textStyle: { color: "#f0f0f0" },
+                    titleTextStyle: { color: "#f0f0f0" },
+                },
+                vAxis: {
+                    title: "CO (ppm)",
+                    gridlines: { color: "#f0f0f0" },
+                    textStyle: { color: "#f0f0f0" },
+                    titleTextStyle: { color: "#f0f0f0" },
+                },
+                legend: "none",
+                colors: ["#863CF2"],
+                areaOpacity: 0.3,
+                chartArea: { width: "85%", height: "70%" },
+                backgroundColor: { fill: "none" },
+            };
+
+            const tempChart = new google.visualization.AreaChart(
+                document.getElementById("temp_chart")
+            );
+            const humidityChart = new google.visualization.AreaChart(
+                document.getElementById("humidity_chart")
+            );
+            const air_qualityChart = new google.visualization.AreaChart(
+                document.getElementById("aq_chart")
+            );
+
+            tempChart.draw(
+                google.visualization.arrayToDataTable(tempData),
+                tempOptions
+            );
+            humidityChart.draw(
+                google.visualization.arrayToDataTable(humidityData),
+                humidityOptions
+            );
+            air_qualityChart.draw(
+                google.visualization.arrayToDataTable(air_qualityData),
+                air_qualityOption
+            );
+        }
+        function update_map(pos) {
+            var map = L.map("your_map").setView([0, 0], 2); // Start zoomed out
+
+            // Add the OpenStreetMap tile layer
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+            }).addTo(map);
+            map.setView(pos, 15);
+            L.marker(pos).addTo(map).openPopup();
+        }
+        //document.querySelector("#light_1_control > label > input[type=checkbox]")
+        function update_controls() {
+            let control_panel = document.getElementsByClassName("controls")[0];
+            let controls = control_panel.getElementsByClassName("control");
+
+            Array.from(controls).forEach((control) => {
+                let on = false;
+                //checkbox = control.querySelector(".switch span");
+                control.addEventListener("onclick", () => {
+                    if (!on) {
+                        control.style.background = "var(--good_green)";
+                        on = !on;
+                    } else {
+                        control.style.background = "var(--no_signal_error_red)";
+                    }
+                });
+            });
+
+            if (
+                document.querySelector(
+                    "#light_1_control > label > input[type=checkbox]"
+                ).checked
+            ) {
+                controls[0].style.background = "var(--good_green)";
+            } else {
+                controls[0].style.background = "var(--no_signal_error_red)";
+            }
+        }
+
+        var state = {
+            light1: false,
+            light2: false,
+            camera1: true,
+            DHT11: true,
+        };
+
+        function activate(x) {
+            state[x] = !state[x];
+            alert(`${x}: ${state[x]}`);
+        }
+
+        const apiKey = "c26bb482498344d4b25120857250305";
+
+        async function getWeatherData(location) {
+            let response = await fetch(
+                `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`
+            );
+            let data = await response.json();
+            return data;
+        }
+
+        let pos = [21.191977, 106.074229]; // Global variable to store position
+
+        function get_geolocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        pos[0] = position.coords.latitude;
+                        pos[1] = position.coords.longitude;
+                        console.log("Geolocation success:", pos);
+                    },
+                    function (error) {
+                        console.log("Geolocation failed: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+            return pos; // This will return initial [null, null] immediately
+        }
+
+        function update(
+            icon,
+            temp,
+            condition,
+            location,
+            felling,
+            humidity,
+            airq
+        ) {
+            let main = document.querySelector("#main");
+            let pm25 = document.querySelector("#pm25");
+            let pm10 = document.querySelector("#pm10");
+            let co = document.querySelector("#co");
+            pm10.innerText = `${airq.pm10} µg/m³`;
+            pm25.innerText = `${airq.pm2_5} µg/m³`;
+            co.innerText = `${airq.co} ppm`;
+            document.getElementById("temp").innerText = `${temp}°C`;
+            document.getElementById("humid").innerText = `${humidity}%`;
+            document.getElementById("condition").innerText = condition;
+            document.getElementById("location").innerText = location;
+            document.getElementById("condition_icon").src = icon;
+        }
+
+        function fetchSensors() {
+            fetch("/sensors")
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    document.getElementById(
+                        "temp_sensor_1"
+                    ).innerText = `${data.temperature}°C`;
+                    document.getElementById(
+                        "humid_sensor_1"
+                    ).innerText = `${data.humidity}%`;
+                    document.getElementById(
+                        "airq_sensor_1"
+                    ).innerText = `${data.airQuality}`;
+                })
+                .catch((error) => {
+                    return NaN;
+                });
+        }
+
+        function main() {
+            let temp1 = document.getElementById("temp_sensor_1");
+            let humid1 = document.getElementById("humid_sensor_1");
+            let airq1 = document.getElementById("airq_sensor_1");
+            var pos = get_geolocation();
+            //Đỏ nếu chưa có dữ liệu
+            if (temp1.innerText == "---°C") {
+                temp1.parentElement.style.background =
+                    "var(--no_signal_error_red)";
+            } else {
+                temp1.parentElement.style.background =
+                    "var(--transparent_blue_color)";
+            }
+            if (humid1.innerText == "---%") {
+                humid1.parentElement.style.background =
+                    "var(--no_signal_error_red)";
+            } else {
+                humid1.parentElement.style.background =
+                    "var(--transparent_blue_color)";
+            }
+            if (airq1.innerText == "---ppm") {
+                airq1.parentElement.style.background =
+                    "var(--no_signal_error_red)";
+            } else {
+                airq1.parentElement.style.background =
+                    "var(--transparent_blue_color)";
+            }
+            document.getElementById("time").innerText =
+                new Date().toLocaleTimeString();
+            document.getElementById("date").innerText =
+                new Date().toLocaleDateString();
+
+            getWeatherData(`${pos[0]},${pos[1]}`).then((data) => {
+                //lấy độ ẩm, nhiệt độ, vị trí, thời tiết, cảm giác
+                let temp = data.current.temp_c;
+                let condition = data.current.condition.text;
+                let felling = data.current.feelslike_c;
+                let location = data.location.name;
+                let humidity = data.current.humidity;
+                let icon = data.current.condition.icon;
+                let airq = data.current.air_quality;
+                update(
+                    icon,
+                    temp,
+                    condition,
+                    location,
+                    felling,
+                    humidity,
+                    airq
+                );
+            });
+
+            if (document.getElementById("temp").innerText == "---") {
+                document.getElementById("temp").parentElement.style.background =
+                    "var(--no_signal_error_red)";
+            }
+
+            fetchSensors();
+        }
+        update_map(pos);
+        main();
+        //update_controls();
+
+        setInterval(main, 1000);
+    </script>
+</html>

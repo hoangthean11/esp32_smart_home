@@ -1,0 +1,44 @@
+body{
+    padding: 0px;
+    margin: 0px;
+}
+.main {
+    margin: 0px;
+    padding: none;
+    height: 100vh;
+    background: linear-gradient(
+        to bottom right,
+        rgb(10,10,10) 0%,
+        rgb(20,20,20) 50%,
+        rgb(30,30,30) 100%
+    );
+    font-family: Poppins, sans-serif;
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    column-gap: 20px;
+    row-gap: 20px;
+}
+
+.temp_gadget{
+    grid-row: 2/6;
+    grid-column: 5/7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background: rgba(18, 112, 201, 0.277);
+}
+
+.humid_gadget{
+    grid-row: 6/10;
+    grid-column: 5/7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background: rgba(18, 112, 201, 0.277);
+}
